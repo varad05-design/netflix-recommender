@@ -3,8 +3,7 @@ title: Netflix Recommender
 emoji: 🔥
 colorFrom: gray
 colorTo: blue
-sdk: gradio
-sdk_version: 6.29.1
+sdk: streamlit
 python_version: '3.12'
 app_file: app.py
 pinned: false
