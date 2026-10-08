@@ -91,16 +91,16 @@ st.markdown(
 @st.cache_data
 def load_data():
   df = pd.read_csv('netflix_titles.csv')
-  with open('cosine_sim.pkl', 'rb') as f:
-    cosine_sim = pickle.load(f)
+  with open('tfidf_matrix.pkl', 'rb') as f:
+    tfidf_matrix = pickle.load(f)
   with open('indices.json', 'r') as f:
     indices_raw = json.load(f)
   indices = pd.Series(indices_raw)
-  return df, cosine_sim, indices
+  return df, tfidf_matrix, indices
 
 
 try:
-  df, cosine_sim, indices = load_data()
+  df, tfidf_matrix, indices = load_data()
 except Exception as e:
   st.error(f'Failed to load datasets: {e}')
   st.stop()
@@ -109,6 +109,8 @@ except Exception as e:
 # -----------------------------------------------------------------------------
 # 4. Recommendation Logic with Filtering
 # -----------------------------------------------------------------------------
+from sklearn.metrics.pairwise import cosine_similarity
+
 def get_recommendations(
     title, num_recommendations=6, type_filter='All', genre_filter='All'
 ):
@@ -116,7 +118,8 @@ def get_recommendations(
   if isinstance(idx, pd.Series):
     idx = idx.iloc[0]
 
-  sim_scores = list(enumerate(cosine_sim[idx]))
+  sim_scores_for_movie = cosine_similarity(tfidf_matrix[idx], tfidf_matrix).flatten()
+  sim_scores = list(enumerate(sim_scores_for_movie))
   sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
 
   # Get top candidate pool
